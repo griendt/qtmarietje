@@ -1,0 +1,28 @@
+QtMarietje 
+Marietje client using PyQt4
+(c) Alex van de Griendt, 2015
+
+Based on the Python Marietje interface by Bas Westerbaan
+https://github.com/basweterb
+https://github.com/marietje/marietje
+
+### Dependencies
+QtMarietje uses the following packages to run:
+ - PyQt4
+ - numpy
+ - matplotlib
+ - eyed3 (optional)
+
+### Usage
+qtmarietje.pyw [-H host] [-p port] [-d dir] [-u username]
+The default settings are as follows:
+ - Host: noordlset.science.ru.nl
+ - Port: 1337
+ - Directory: .pymarietje
+ - User: The first line in local file "username" if it exists;
+ otherwise the os login name is attempted.
+
+For Zuidkantine, use host zuidslet.science.ru.nl instead.
+
+A file "uploads_[user]" is read (or created if it doesn't exists) which contains a list of track IDs that have been queued under user [user] previously.
+To generate a file, visit https://noordslet.science.ru.nl/unique.php?login=[user].
