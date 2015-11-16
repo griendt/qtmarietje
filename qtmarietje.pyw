@@ -13,12 +13,12 @@ import logging
 import random
 import optparse
 
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from PyQt5 import uic
-from matplotlib.figure import Figure
+from PyQt4.QtCore import QObject
+from PyQt4.QtCore import *
+from PyQt4.QtGui import *
+from PyQt4 import uic
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
+from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 try: import eyed3
 except: pass
