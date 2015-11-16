@@ -15,6 +15,7 @@ import optparse
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
 from PyQt5 import uic
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
@@ -677,17 +678,17 @@ def main(args):
 	os.environ['ESCDELAY'] = "0";
 	
 
-	if not "getlogin" in dir(os) or not m.check_login(os.getlogin()):
-		if not m.check_login(username):
-			if os.path.exists("username"):
-				with open("username",'r') as f:
-					username = f.read().splitlines()[0]
-				if not m.check_login(username):
-					raise Exception, "Invalid Username %s" % username
-			else:
-				username = raw_input("Enter username: ")
-				while not m.check_login(username):
-					username = raw_input("That user is not in the Marietje database, try again: ")
+	# if not "getlogin" in dir(os) or not m.check_login(os.getlogin()):
+	if not m.check_login(username):
+		if os.path.exists("username"):
+			with open("username",'r') as f:
+				username = f.read().splitlines()[0]
+			if not m.check_login(username):
+				raise Exception, "Invalid Username %s" % username
+		else:
+			username = raw_input("Enter username: ")
+			while not m.check_login(username):
+				username = raw_input("That user is not in the Marietje database, try again: ")
 	queue = m.get_queue()
 	now_playing = m.get_playing()
 	print(now_playing)
