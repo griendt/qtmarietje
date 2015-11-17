@@ -22,9 +22,9 @@ matplotlib.use('Qt4Agg')
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-# try: import eyed3
-# except: pass
-import eyed3
+try: import eyed3
+except: pass
+# import eyed3
 
 import marietje
 
