@@ -13,15 +13,18 @@ import logging
 import random
 import optparse
 
-from PyQt4.QtCore import QObject
+# from PyQt4.QtCore import QObject
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyQt4 import uic
+import matplotlib
+matplotlib.use('Qt4Agg')
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-try: import eyed3
-except: pass
+# try: import eyed3
+# except: pass
+import eyed3
 
 import marietje
 
