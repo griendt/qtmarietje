@@ -16,7 +16,7 @@ QtMarietje uses the following packages to run:
 ### Usage
 qtmarietje.pyw [-H host] [-p port] [-d dir] [-u username]
 The default settings are as follows:
- - Host: noordlset.science.ru.nl
+ - Host: noordslet.science.ru.nl
  - Port: 1337
  - Directory: .pymarietje
  - User: The first line in local file "username" if it exists;
@@ -24,5 +24,5 @@ The default settings are as follows:
 
 For Zuidkantine, use host zuidslet.science.ru.nl instead.
 
-A file "uploads_[user]" is read (or created if it doesn't exists) which contains a list of track IDs that have been queued under user [user] previously.
+A file "uploads_[user]" is read (or created if it doesn't exist) which contains a list of track IDs that have been queued under user [user] previously.
 To generate a file, visit https://noordslet.science.ru.nl/unique.php?login=[user].
