@@ -47,6 +47,7 @@ import marietje
 #	- own queue time display
 #	- error message when trying to queue when queue time is full
 #	- case is ignored when checking for duplicates when uploading
+#	- notifies user when upload is successful
 #
 #   Changes in version 0.08:
 #   - dunst notification option
@@ -477,6 +478,13 @@ class MainWindow(FormClass, BaseClass):
 		self.upload_thread.finished.disconnect()
 		self.upload_thread.progress.disconnect()
 		self.upload_thread = None
+		
+		if not self.notification_checkbox.isChecked():
+			return
+		if os.name != 'nt':
+			os.system('notify-send -u "low" "Marietje" "Upload successful!"')
+		else:
+			self.systemTray.showMessage("Marietje",u"Upload successful!")
 
 	def refresh(self,data,dtype='database'):
 		if self.table.selectedIndexes():
