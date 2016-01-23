@@ -443,7 +443,7 @@ class MainWindow(FormClass, BaseClass):
 		print (unicode(artist),unicode(song))
 
 		for key in self.data.keys():
-			if self.data[key][1].lower() == artist.lower() and self.data[key][2].lower() == song.lower():
+			if self.data[key][1].lower() == artist.toLower() and self.data[key][2].lower() == song.toLower():
 				errorbox = QMessageBox(self)
 				errorbox.setWindowTitle("Track already exists")
 				errorbox.setText(u"A song with id <b>{0}</b> already exists with<br>".format(self.data[key][0])+
