@@ -24,6 +24,9 @@ except: pass
 
 import marietje
 
+try: import pylast
+except: pass
+
 
 #############################################################
 #
@@ -186,6 +189,23 @@ class MainWindow(FormClass, BaseClass):
 
 		QTimer.singleShot(2000,self.notifyMessage)
 
+		self.lastfm_username.setText("Last.fm Username")
+		self.lastfm_password.setText("Password")
+		self.lastfm_password.setEchoMode(QLineEdit.Password)
+		self.lastfm_username.setStyleSheet("background:#F0F0F0")
+		self.lastfm_password.setStyleSheet("background:#F0F0F0")
+		
+		self.lastfm_password.returnPressed.connect(self.lastfm_login)
+		self.lastfm_loginbutton.clicked.connect(self.lastfm_login)
+		self.lastfm_loggedin = False
+		self.lastfm_scrobblecheck.setCheckState(0)
+		self.lastfm_scrobblecheck.stateChanged.connect(self.lastfm_switch_scrobbling)
+		
+		self.lastfm_blacklistbutton.clicked.connect(self.lastfm_blacklist)
+		with open("blacklist",'r') as f:
+			blacklist = eval("['"+f.read()+"']".replace(",","','"))
+			print("Blacklist: "+str(blacklist))
+			f.close()
 	'''def resizeEvent(self,resizeEvent):
 		h = self.geometry().height()
 		self.button_random.move(5,305-400+h)
@@ -195,6 +215,61 @@ class MainWindow(FormClass, BaseClass):
 		self.queue_table.setMaximumHeight(280-400+h)
 	'''
 
+	def lastfm_login(self):
+		if self.lastfm_loggedin:
+			self.lastfm_loggedin = False
+			self.lastfm_username.setStyleSheet("background:#F0F0F0")
+			self.lastfm_password.setStyleSheet("background:#F0F0F0")
+			self.lastfm_loginbutton.setText("Login to Last.fm")
+			return
+		password_hash = pylast.md5(self.lastfm_password.text())
+		try:
+			self.lastfm_loginbutton.setText("Logging in...")
+			self.network = pylast.LastFMNetwork(api_key="1a8078aea8442f92c98755e29e24f4cf",api_secret="cdf440e7b9ebef25087253b8ee64d604",username=self.lastfm_username.text(),password_hash=password_hash)
+			self.lastfm_username.setStyleSheet("background:#28a828")
+			self.lastfm_password.setStyleSheet("background:#28a828")
+			self.lastfm_loginbutton.setText("Logout")
+			print("Login to Last.fm successful!")
+			self.lastfm_loggedin = True
+		except pylast.WSError:
+			print("Authentication failed: wrong login")
+			errorbox = QMessageBox(self)
+			errorbox.setWindowTitle("Authentication failed")
+			errorbox.setText(u"Login failed! You have entered incorrect user details.")
+			errorbox.show()
+		except:
+			print("Authentication failed: unknown error")
+			errorbox = QMessageBox(self)
+			errorbox.setWindowTitle("Authentication failed")
+			errorbox.setText(u"Login failed! An unknown error occurred.")
+			errorbox.show()
+		return
+		
+	def lastfm_switch_scrobbling(self):
+		if self.lastfm_scrobblecheck.isChecked():
+			if not self.lastfm_loggedin:
+				warningbox = QMessageBox(self)
+				warningbox.setWindowTitle("Log in to Last.fm")
+				warningbox.setText(u"Scrobbling only works after logging in to Last.fm. Enter your credentials into the client to enable scrobbling.")
+				warningbox.show()
+		return
+		
+	def lastfm_blacklist(self):
+		try:
+			with open("blacklist",'r') as f:
+				blacklist = f.read()
+				print(blacklist)
+				f.close()
+		except:
+			blacklist = ""
+			
+		(blacklist,ok) = QInputDialog.getText(self,"Update Blacklist","Artists corresponding to a Blacklist entry will never be scrobbled. Use commas to seperate entries. Use the escape character \\, if necessary.",QLineEdit.Normal,str(blacklist))
+		if not ok: return
+		with open("blacklist",'w') as f:
+			f.write(blacklist)
+			f.close()
+		return
+	
 	def change_user(self):
 		(user,ok) = QInputDialog.getText(self,"Change Username","Username:",QLineEdit.Normal,self.user)
 		if not ok: return
@@ -262,7 +337,7 @@ class MainWindow(FormClass, BaseClass):
 				break
 		else:
 			np = ''
-			print "AHHHHHHH er speelt geen nummer???"
+			print "No song appears to be playing!"
 
 		mn, se = divmod(int(self.time_left),60)
 		ho, mn = divmod(mn, 60)
@@ -283,6 +358,29 @@ class MainWindow(FormClass, BaseClass):
 				self.currentSong = np
 
 		if self.time_left == 1:
+			if self.lastfm_loggedin and self.lastfm_scrobblecheck.isChecked(): # scrobble track when it finishes
+				try:
+					(np_id, stamp, length, tim) = m.get_playing()
+					for key in self.data.keys():
+						if self.data[key][0]==np_id:
+							np = self.data[key][1] + u" - " + self.data[key][2]
+							artist = self.data[key][1]
+							title = self.data[key][2]
+					#track = self.network.get_track(artist=self.data[key][1],title=self.data[key][2])
+					try:
+						with open("blacklist",'r') as f:
+							blacklist = eval("['"+f.read()+"']").replace(",","','")
+							f.close()
+					except:
+						print("Blacklist file doesn't exist or is corrupt!")
+						blacklist = []
+					print(blacklist)
+					if not artist in blacklist:
+						self.network.scrobble(artist=artist,title=title,timestamp=time.time())
+				except BaseException as e:
+					print(e)
+					raise
+			
 			QTimer.singleShot(6000,self.notifyMessage)
 
 		mn, se = divmod(int(self.time_left),60)
@@ -576,7 +674,7 @@ class MainWindow(FormClass, BaseClass):
 				self.comboUploaders.setCurrentIndex(0)
 				self.comboUploaders.setEditText(u"")
 				self.uploader_set(0)
-			elif event.key() in [Qt.Key_F1,Qt.Key_Control,Qt.Key_Shift,Qt.Key_Backspace]:
+			elif event.key() in [Qt.Key_F1]:
 				self.query_bar.setFocus()
 			elif event.key() == Qt.Key_F5:
 				t = time.time()

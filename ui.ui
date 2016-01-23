@@ -212,6 +212,34 @@
            </widget>
           </item>
           <item>
+           <widget class="QLineEdit" name="lastfm_username">
+            <property name="text">
+             <string>Last.fm Username</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lastfm_password">
+            <property name="text">
+             <string>Last.fm Password</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="lastfm_loginbutton">
+            <property name="text">
+             <string>Login to Last.fm</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="lastfm_blacklistbutton">
+            <property name="text">
+             <string>Edit Scrobble Blacklist</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="horizontalSpacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -297,6 +325,13 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="lastfm_scrobblecheck">
+          <property name="text">
+           <string>Scrobble Tracks</string>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QCheckBox" name="notification_checkbox">
