@@ -42,6 +42,12 @@ import marietje
 #   - upload tracks
 #   - detects song metadata when uploading
 #
+#	Changes in version 0.09:
+#	- added checkbox to turn on/off notifications
+#	- own queue time display
+#	- error message when trying to queue when queue time is full
+#	- case is ignored when checking for duplicates when uploading
+#
 #   Changes in version 0.08:
 #   - dunst notification option
 #   - fixed graph drawing error
@@ -77,7 +83,7 @@ import marietje
 
 m = marietje.RawMarietje()
 
-M_VERSION = "0.08"
+M_VERSION = "0.09"
 
 FormClass, BaseClass = uic.loadUiType("ui.ui")
 
@@ -396,13 +402,17 @@ class MainWindow(FormClass, BaseClass):
 
 	def request_track(self):
 		index = self.table.selectedIndexes()
-		if not len(index)>=1:
+		print(len(index))
+		if not len(index)==1:
 			self.statusbar.showMessage("No unique song selected!",5000)
 		else:
 			track_id = int(self.table.model().data(index[0]).toString())
 			if self.plotpoints_user[-1] > 45:
 				self.error_box.show()
 				return
+			else:
+				self.error_box.show()
+				print("!!")
 			m.request_track(track_id,self.user)
 			self.statusbar.showMessage("Request successful!",5000)
 
@@ -433,7 +443,7 @@ class MainWindow(FormClass, BaseClass):
 		print (unicode(artist),unicode(song))
 
 		for key in self.data.keys():
-			if self.data[key][1] == artist and self.data[key][2] == song:
+			if self.data[key][1].lower() == artist.toLower() and self.data[key][2].lower() == song.toLower():
 				errorbox = QMessageBox(self)
 				errorbox.setWindowTitle("Track already exists")
 				errorbox.setText(u"A song with id <b>{0}</b> already exists with<br>".format(self.data[key][0])+
