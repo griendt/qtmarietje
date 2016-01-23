@@ -42,6 +42,12 @@ import marietje
 #   - upload tracks
 #   - detects song metadata when uploading
 #
+#	Changes in version 0.09:
+#	- added checkbox to turn on/off notifications
+#	- own queue time display
+#	- error message when trying to queue when queue time is full
+#	- case is ignored when checking for duplicates when uploading
+#
 #   Changes in version 0.08:
 #   - dunst notification option
 #   - fixed graph drawing error
@@ -437,7 +443,7 @@ class MainWindow(FormClass, BaseClass):
 		print (unicode(artist),unicode(song))
 
 		for key in self.data.keys():
-			if self.data[key][1] == artist and self.data[key][2] == song:
+			if self.data[key][1].lower() == artist.lower() and self.data[key][2].lower() == song.lower():
 				errorbox = QMessageBox(self)
 				errorbox.setWindowTitle("Track already exists")
 				errorbox.setText(u"A song with id <b>{0}</b> already exists with<br>".format(self.data[key][0])+
