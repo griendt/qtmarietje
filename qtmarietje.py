@@ -5,6 +5,7 @@
 
 from __future__ import with_statement
 import os
+import pwd
 import sys
 import socket
 import threading
@@ -12,6 +13,9 @@ import time
 import logging
 import random
 import optparse
+import matplotlib
+matplotlib.use("Qt4Agg")
+
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -903,7 +907,7 @@ def main(args):
 	os.environ['ESCDELAY'] = "0";
 	
 
-	if not "getlogin" in dir(os) or not m.check_login(os.getlogin()):
+	if not "getuid" in dir(os) or not m.check_login(pwd.getpwuid(os.getuid()).pw_name):
 		if not m.check_login(username):
 			if os.path.exists("username"):
 				with open("username",'r') as f:
