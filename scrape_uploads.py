@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 
-import sys, urllib, urllib2, cookielib
-import re
+import sys, urllib, urllib2, cookielib, re, getpass, os
 
 class MarietjeScraper:
 	def __init__(self, username, password):
@@ -26,17 +25,29 @@ class MarietjeScraper:
 		tracks = []
 		for track in tracks_array:
 			tracks.append(track[0] + ': ' + track[1] + '\n')
-		f = open('uploader_info_new.txt','w')
+		f = open('uploader_info.txt','w')
 		f.writelines(tracks)
 		f.close()
 		print 'Done refreshing uploads.'
 		return True
 
-
-
 def main(argv):
-	m = MarietjeUploads('jimdriessen', '')
-	m.refresh_uploader_info()
+	username = ''
+	password = ''
+	if os.path.exists("username"):
+		with open("username",'r') as f:
+			lines = f.read().splitlines()
+			line_count = len(lines)
+			if(line_count > 1):
+				username = lines[0]
+				password = lines[1]
+
+	if len(username) < 1 or len(password) < 1:
+		username = raw_input("Enter username: ")
+		password = getpass.getpass("Enter password: ")
+
+	scraper = MarietjeScraper(username, password)
+	scraper.refresh_uploader_info()
 
 
 if __name__ == '__main__':
