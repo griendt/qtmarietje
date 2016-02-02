@@ -1,11 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
 
 from __future__ import with_statement
 import os
-import pwd
 import sys
 import socket
 import threading
@@ -13,6 +12,7 @@ import time
 import logging
 import random
 import optparse
+import getpass
 import matplotlib
 matplotlib.use("Qt4Agg")
 
@@ -30,6 +30,8 @@ import marietje
 
 try: import pylast
 except: pass
+
+from scrape_uploads import MarietjeScraper
 
 
 #############################################################
@@ -892,6 +894,7 @@ def main(args):
 	### MarietjeOld
 	parser = optparse.OptionParser()
 	username = ''
+	password = ''
 	parser.add_option('-H', '--host', dest='host',
 			  default='noordslet.science.ru.nl',
 			  help="Connect to HOST", metavar='HOST')
@@ -907,17 +910,25 @@ def main(args):
 	os.environ['ESCDELAY'] = "0";
 	
 
-	if not "getuid" in dir(os) or not m.check_login(pwd.getpwuid(os.getuid()).pw_name):
-		if not m.check_login(username):
-			if os.path.exists("username"):
-				with open("username",'r') as f:
-					username = f.read().splitlines()[0]
-				if not m.check_login(username):
-					raise Exception, "Invalid Username %s" % username
-			else:
-				username = raw_input("Enter username: ")
-				while not m.check_login(username):
-					username = raw_input("That user is not in the Marietje database, try again: ")
+	username = getpass.getuser()
+	if not m.check_login(username):
+		if os.path.exists("username"):
+			with open("username",'r') as f:
+				lines = f.read().splitlines()
+				line_count = len(lines)
+				if(line_count > 0):
+					username = lines[0]
+				if(line_count > 1):
+					password = lines[1]
+			if not m.check_login(username):
+				raise Exception, "Invalid Username %s" % username
+		else:
+			username = raw_input("Enter username: ")
+			while not m.check_login(username):
+				username = raw_input("That user is not in the Marietje database, try again: ")
+			password = getpass.getpass("Enter password if you want to refresh the uploader info: ")
+	scraper = MarietjeScraper(username, password)
+	scraper.refresh_uploader_info()
 	queue = m.get_queue()
 	data = []
 	for a,s,l,r in queue[1]:
