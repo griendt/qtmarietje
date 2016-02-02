@@ -1,42 +1,43 @@
+#!/usr/bin/env python2
+
+import sys, urllib, urllib2, cookielib
 import re
 
-f = open("PHPMarietje.html",'r')
-data = f.read()
-f.close()
+class MarietjeScraper:
+	def __init__(self, username, password):
+		self.username = username
+		self.password = password
 
-pos = data.find("class=\"forum2\"")
-stripped = data[pos:]
-pos2 = stripped.find("</table>")
-stripped = stripped[:pos2]
+	def refresh_uploader_info(self):
+		cj = cookielib.CookieJar()
+		opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+		login_data = urllib.urlencode({'login' : self.username, 'password' : self.password})
+		resp = opener.open('http://noordslet.science.ru.nl/login.php', login_data)
+		if 'Could not login.' in resp.read():
+			print 'Could not refresh uploads, wrong username or password.'
+			return False
+		resp = opener.open('http://noordslet.science.ru.nl/request.php')
+		text = resp.read()
 
-r = re.compile("<tr class=\"forum1\">(.*?)</tr>",re.I | re.S)
+		regex = ur"<tr.*name='(\d+)'.*\n.*\n(.*?)</td>"
+		tracks_array = re.findall(regex, text)
+		tracks_array.sort(key=lambda x: int(x[0]))
 
-lines = []
-for m in r.findall(stripped):
-    lines.append(m[4:-5])
+		tracks = []
+		for track in tracks_array:
+			tracks.append(track[0] + ': ' + track[1] + '\n')
+		f = open('uploader_info_new.txt','w')
+		f.writelines(tracks)
+		f.close()
+		print 'Done refreshing uploads.'
+		return True
 
-parsed = []
-index = {}
 
-for d in lines:
-    pos = d.find("id=")
-    pos2 = d.find("&")
-    i = int(d[pos+3:pos2])
-    d = d[pos2:]
-    pos = d.find(">")
-    pos2 = d.find("</td>")
-    artist = d[pos+1:pos2]
-    d = d[pos2+15:]
-    pos = d.find(">")
-    pos2 = d.find("</td>")
-    title = d[pos+1:pos2]
-    #print(repr(d))
-    if d=="": continue
-    uploader = d.splitlines()[-1]
-    parsed.append((artist,title,i,uploader))
-    index[i] = uploader
 
-s = "\n".join(["%d: %s" % (k,v) for k,v in sorted(index.items(),key=lambda x:x[0])])
-f = open("uploader_info.txt",'w')
-f.write(s)
-f.close()
+def main(argv):
+	m = MarietjeUploads('jimdriessen', '')
+	m.refresh_uploader_info()
+
+
+if __name__ == '__main__':
+	main(sys.argv)
